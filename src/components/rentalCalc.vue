@@ -87,8 +87,9 @@
       </div>
     </div>
     <div class="col-30 calculations">
-      Net operating income: {{ netOperatingIncome() }} per month.
-      Cap Rate: {{ capRate() }}
+      Net operating income: {{ totalMonthlyRent }} per month.
+      Cap Rate: {{ capRate }}
+      Cash On Cash: {{ cashOnCash }}
     </div>
     <div class="mortgage-container">
       <iframe :src="`https://www.calculator.net/mortgage-calculator.html?chouseprice=${purchasePrice}&cdownpayment=${downpaymentCalculated}&cdownpaymentunit=p&cloanterm=30&cinterestrate=${interestRate}&cstartmonth=3&cstartyear=2020&caddoptional=0&cpropertytaxes=0&cpropertytaxesunit=p&chomeins=0&chomeinsunit=d&cpmi=0&cpmiunit=d&choa=0&choaunit=d&cothercost=0&cothercostunit=d&cmop=0&cptinc=0&chiinc=0&choainc=0&cocinc=0&cexma=0&cexmsm=3&cexmsy=2020&cexya=0&cexysm=3&cexysy=2020&cexoa=0&cexosm=3&cexosy=2020&caot=0&xa1=0&xm1=3&xy1=2020&xa2=0&xm2=3&xy2=2020&xa3=0&xm3=3&xy3=2020&xa4=0&xm4=3&xy4=2020&xa5=0&xm5=3&xy5=2020&xa6=0&xm6=3&xy6=2020&xa7=0&xm7=3&xy7=2020&xa8=0&xm8=3&xy8=2020&xa9=0&xm9=3&xy9=2020&xa10=0&xm10=3&xy10=2020&csbw=1&printit=1`"
@@ -110,6 +111,9 @@ export default {
   computed: {
     capRate() {
       return (this.netOperatingIncome / this.purchasePrice) * 100;
+    },
+    cashOnCash() {
+      return (this.netOperatingIncome / this.downPayment) * 100;
     },
     netOperatingIncome() {
       return this.totalMonthlyRent - this.totalExpenses;
@@ -153,6 +157,7 @@ export default {
       hoa: null,
       maintenance: null,
       otherCosts: null,
+      yearlyPropertyTax: null,
       mortgage: null,
       //Income
       monthlyRent: null,
