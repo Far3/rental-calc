@@ -11,94 +11,93 @@
       </div>
 
       <div>
-        <p>Purchase Price is: ${{ purchasePrice }}</p>
-        <p>Downpayment is: ${{ downPayment }}</p>
         <strong>{{ downPayment }} is {{ downpaymentCalculated }}% of the purchase price.</strong>
       </div>
         <div>
-            <h3>Preset Criteria</h3>
             <label for="address">Address: </label>
             <input v-model="address" type="text" placeholder="Enter an address" name="address">
             <ul>
               <li>
-                <a href="https://www.redfin.com/city/4147/CO/Colorado-Springs/filter/property-type=house,min-price=50k,max-price=250k,min-beds=3,viewport=39.03711124967014:38.713887348714714:-104.59480259820465:-104.91973715762957" target="_blank">Colorado Springs 3BD/2BA under $250K</a>
-              </li>
-              <li>
-                  <a href="https://www.redfin.com/city/5155/CO/Dencol/filter/property-type=house,min-price=50k,max-price=300k,min-beds=3,viewport=39.99003:39.53293:-104.55196:-105.15827,no-outline" target="_blank">Denver 3BD+ under $300K</a>
+                  <a href="https://www.redfin.com/city/5155/CO/Denver/filter/property-type=house,min-price=50k,max-price=300k,min-beds=3,viewport=39.99003:39.53293:-104.55196:-105.15827,no-outline" target="_blank">Denver 3BD+ under $300K</a>
               </li>
             </ul>
+            <p>Property Tax search tool: </p> <a v-if="address" :href="`https://google.com/search?q=${address} + assessor`" target="_blank">{{ address }} parcel information</a>
+            <div>
+              <a href="http://gisapp.adcogov.org/quicksearch/QuickSearch.aspx">Adams County Tax Assesor</a>
+            </div>
 
           </div>
-          <div class="final-output">
-            <h5>Total Income</h5>
-            Monthly: {{ totalIncome }}
-            Yearly: {{ totalIncome  }}
-            <h5>Total expenses</h5>
-            Monthly: {{ totalExpenses / 12 }}
-            Yearly: {{ totalExpenses }}
-            <h5>NOI (not including Mortgage)</h5>
-            Monthly: {{ totalIncome - (totalExpenses / 12) }}
-            Yearly: {{ totalIncome * 12 - totalExpenses }}
-
-            <h5>WITH Mortgage</h5>
-            Monthly: {{ (totalIncome - (totalExpenses / 12)) - mortgage }}
-            Yearly: {{ (totalIncome * 12 - (totalExpenses)) - (mortgage * 12) }}
+          <div class="monthly-yearly-numbers">
+            <p>Purchase Price is: ${{ purchasePrice }}</p>
+            <p>Downpayment is: ${{ downPayment }}</p>
+            <h5>Monthly Expenses</h5>
+            <p>Monthly maintenance is: {{ maintenance  }}</p>
+            <p>Monthly property tax is: {{ monthlyPropertyTax }}</p>
+            <p>Monthly insurance is: {{ estimatedInsurance  }}</p>
+            <p>Vacancy: {{ vacancyExpense }}</p>
+            <p>Property Management Expense: {{ propertyManagementCut }}</p>
+            <h5>Debt Service</h5>
+            <p>Monthly mortage payment: {{ mortgage }}</p>
         </div>
     </div>
  
     <div class="col-30 operating-costs">
       <h2>Ongoing operating costs</h2>
-      <h3>Property Tax</h3>
-      <input v-model.number="propertyTax" type="number" placeholder="Property Tax">
-      <p>Property Tax search tool: </p> <a :href=" `https://property.spatialest.com/co/elpaso/#/search?page=1&term=${address}`" target="_blank">{{ address }} parcel information</a>
-      <p>Monthly property tax is: {{ propertyTax / 12 }}</p>
-      <p>Yearly property tax is: {{ propertyTax }}</p>
+      <div>
+        <label for="propertyTax">Property Tax</label>
+        <input v-model.number="yearlyPropertyTax" name="propertyTax" type="number" placeholder="Property Tax">
+      </div>
+      <div>
+        <label for="monthlyInsurance">Monthly Insurance</label>
+        <input v-model.number="insurance" name="monthlyInsurance" type="number" placeholder="estimatedInsurance">
+        <small>
+          Average insurance for CO is .33% of the purchase price.{{ this.purchasePrice / 12 * (.0033) }}
+        </small>
+      </div>
 
-      <h3>Insurance</h3>
-      <input v-model.number="estimatedInsurance" type="number" placeholder="estimatedInsurance">
-        Average insurance for CO is .33%
-      <p>Monthly insurance is: {{ estimatedInsurance / 12 }}</p>
-      <p>Yearly insurance is: {{ estimatedInsurance }}</p>
+      <div>
+        <label for="monthlyMaintenance">Monthly Maintenance</label>
+        <input v-model.number="maintenance" name="monthlyMaintenance" type="number" placeholder="maintenance">
+        <small>That is {{ ((maintenance * 12) / purchasePrice) * 100 }} of the purchase price <span v-if="monthlyRent">and {{ (maintenance / monthlyRent) * 100 }}% of the rent.</span></small>
+        <small>A general rule is 1% of the property value per year or 5-10% of the rent.</small>
+      </div>
+      
+      <div>
+        <label for="vacancyRate">Vacancy Rate (%)</label>
+        <input v-model.number="vacancyRate" name="vacancyRate" type="number" placeholder="vacancy Rate">
+        {{ vacancyExpense }}
+      </div>
 
-      <h4>Maintenance</h4>
-      <input v-model.number="maintenance" type="number" placeholder="maintenance">
-      <p>Monthly maintenance is: {{ maintenance / 12 }}</p>
-      <p>Yearly maintenance is: {{ maintenance }}</p>
-      <p>That is {{ (maintenance / purchasePrice) * 100 }} of the purchase price.</p>
-      <small>A general rule is 1% of the property value per year or 5-10% of the rent.</small>
-
-      <h4>Vacancy Rate (%)</h4>
-      <input v-model.number="vacancyRate" type="number" placeholder="vacancy Rate">
-      {{ vacancyExpense }}
-
-      <h4>Property Management</h4>
-      <input v-model.number="managementFee" type="number" placeholder="management Fee">
+      <div>
+        <label for="propertyManagement">Property Management (%)</label>
+        <input v-model.number="managementFee" name="propertyManagement" type="number" placeholder="management Fee">
+      </div>
 
     </div>
     <div class="col-30 income">
       <h4>Income</h4>
-      <h5>Monthly Rent</h5>
-      <input v-model.number="monthlyRent" type="number" placeholder="Monthly Rent">
-
-      <p>Expect monthly rent less vacancy: {{ totalMonthlyRent }}</p>
-      <small>Rental Estiamtes:</small> <a href="https://www.rentometer.com/" target="_blank">https://www.rentometer.com</a>
-
-      <p>Property Management</p>
-      {{ propertyManagementCut }}
-
-      <a href="http://clients.ryanstratton.com/mortgage-calculator/" target="_blank">http://clients.ryanstratton.com/mortgage-calculator/</a>
-      <input v-model.number="mortgage" type="number" placeholder="mortgage">
-      <p>Mortage payment: {{ mortgage }}</p>
-      <p>Yearly: {{ mortgage * 12}}</p>
+      <div>
+        <label for="monthlyRent">Monthly Rent ($)</label>
+        <input v-model.number="monthlyRent" name="monthlyRent" type="number" placeholder="Monthly Rent">
+        <small>Rental Estiamtes:</small> <a href="https://www.rentometer.com/" target="_blank">https://www.rentometer.com</a>
+      </div>
+      <div>
+        <label for="mortage">Mortage</label>
+        <input v-model.number="mortgage" name="mortage" type="number" placeholder="mortgage">
+      </div>
     </div>
-    <div style="display:block;overflow:hidden;width:800px;">
+    <div class="col-30 calculations">
+      Net operating income: {{ netOperatingIncome() }} per month.
+      Cap Rate: {{ capRate() }}
+    </div>
+    <div class="mortgage-container">
       <iframe :src="`https://www.calculator.net/mortgage-calculator.html?chouseprice=${purchasePrice}&cdownpayment=${downpaymentCalculated}&cdownpaymentunit=p&cloanterm=30&cinterestrate=${interestRate}&cstartmonth=3&cstartyear=2020&caddoptional=0&cpropertytaxes=0&cpropertytaxesunit=p&chomeins=0&chomeinsunit=d&cpmi=0&cpmiunit=d&choa=0&choaunit=d&cothercost=0&cothercostunit=d&cmop=0&cptinc=0&chiinc=0&choainc=0&cocinc=0&cexma=0&cexmsm=3&cexmsy=2020&cexya=0&cexysm=3&cexysy=2020&cexoa=0&cexosm=3&cexosy=2020&caot=0&xa1=0&xm1=3&xy1=2020&xa2=0&xm2=3&xy2=2020&xa3=0&xm3=3&xy3=2020&xa4=0&xm4=3&xy4=2020&xa5=0&xm5=3&xy5=2020&xa6=0&xm6=3&xy6=2020&xa7=0&xm7=3&xy7=2020&xa8=0&xm8=3&xy8=2020&xa9=0&xm9=3&xy9=2020&xa10=0&xm10=3&xy10=2020&csbw=1&printit=1`"
       border="0"
       width="800"
       height="500"
       ></iframe>
       <a :href="`https://www.calculator.net/mortgage-calculator.html?chouseprice=${purchasePrice}&cdownpayment=${downpaymentCalculated}&cdownpaymentunit=p&cloanterm=30&cinterestrate=${interestRate}&cstartmonth=3&cstartyear=2020&caddoptional=0&cpropertytaxes=0&cpropertytaxesunit=p&chomeins=0&chomeinsunit=d&cpmi=0&cpmiunit=d&choa=0&choaunit=d&cothercost=0&cothercostunit=d&cmop=0&cptinc=0&chiinc=0&choainc=0&cocinc=0&cexma=0&cexmsm=3&cexmsy=2020&cexya=0&cexysm=3&cexysy=2020&cexoa=0&cexosm=3&cexosy=2020&caot=0&xa1=0&xm1=3&xy1=2020&xa2=0&xm2=3&xy2=2020&xa3=0&xm3=3&xy3=2020&xa4=0&xm4=3&xy4=2020&xa5=0&xm5=3&xy5=2020&xa6=0&xm6=3&xy6=2020&xa7=0&xm7=3&xy7=2020&xa8=0&xm8=3&xy8=2020&xa9=0&xm9=3&xy9=2020&xa10=0&xm10=3&xy10=2020&csbw=1&printit=0`" target="_blank">Mortage Link Results</a>
-    </div>
+    </div>  
   </section>
 </template>
 
@@ -109,29 +108,35 @@ export default {
     msg: String
   },
   computed: {
-    totalIncome() {
-      return this.totalMonthlyRent - this.propertyManagementCut;
+    capRate() {
+      return (this.netOperatingIncome / this.purchasePrice) * 100;
+    },
+    netOperatingIncome() {
+      return this.totalMonthlyRent - this.totalExpenses;
     },
     monthlyAmountWithMortgage() {
-      return (this.totalIncome - (this.totalExpenses / 12) - this.mortgage );
+      return (this.netOperatingIncome - (this.totalExpenses / 12) - this.mortgage );
     },
     totalExpenses() {
-      return (this.maintenance + this.propertyTax + this.estimatedInsurance);
+      return (this.maintenance + this.yearlyPropertyTax + this.estimatedInsurance);
     },
     estimatedInsurance() {
-      return this.purchasePrice * (.0033) || this.insurance;
+      return this.insurance;
     },
     downpaymentCalculated() {
       return this.downPayment / this.purchasePrice * 100
     },
     vacancyExpense() {
-      return ((this.vacancyRate / 100)* this.monthlyRent);
+      return ((this.vacancyRate / 100) * this.monthlyRent);
     },
     totalMonthlyRent() {
       return this.monthlyRent;
     },
     propertyManagementCut() {
       return this.totalMonthlyRent * (this.managementFee / 100);
+    },
+    monthlyPropertyTax() {
+      return this.yearlyPropertyTax / 12;
     }
   },
   data() {
@@ -144,7 +149,6 @@ export default {
       interestRate: 4,
       closingCosts: 2500,
       //Recurring Operating expenses
-      propertyTax: null,
       insurance: null,
       hoa: null,
       maintenance: null,
@@ -170,7 +174,7 @@ input {
 }
 
 p {
-  font-size: 22px;
+  font-size: 16px;
 }
 label, input {
   font-size: 16px;
@@ -182,11 +186,11 @@ label, input {
   border-top-color: #D1CFFF;
   padding: 10px;
   display: inline-block;
-  width: 30%;
+  width: 25%;
   margin:15px;
   vertical-align: top;
 }
 
-.final-output {
+.mortgage-container {
 }
 </style>
